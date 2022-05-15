@@ -1,4 +1,4 @@
-package com.wsf.netty.rpc.provider.controller;
+package com.wsf.netty.rpc.consumer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,10 +8,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 20220526
  */
 @SpringBootApplication
-public class ProviderApplication {
+public class ConsumerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ProviderApplication.class, args);
+        SpringApplication.run(ConsumerApplication.class, args);
     }
 
 }
