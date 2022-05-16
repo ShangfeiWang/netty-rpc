@@ -17,7 +17,7 @@ public class RpcServer extends NettyServer implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
     public RpcServer(String application, String address) {
-        super(address);
+        super(application, address);
         Map<String, Object> beansWithAnnotationMap = applicationContext.getBeansWithAnnotation(NettyRpcService.class);
         if (MapUtils.isNotEmpty(beansWithAnnotationMap)) {
             // 注册服务

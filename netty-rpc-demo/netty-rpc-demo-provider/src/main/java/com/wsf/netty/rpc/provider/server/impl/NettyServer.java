@@ -24,10 +24,13 @@ public class NettyServer extends Server {
     // 127.0.0.1:12345
     private String address;
 
+    private String applicationName;
+
     private final Map<String, Object> SERVICE_MAP = new HashMap<>();
 
-    public NettyServer(String address) {
+    public NettyServer(String address, String applicationName) {
         this.address = address;
+        this.applicationName = applicationName;
     }
 
     private final NioEventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -57,7 +60,7 @@ public class NettyServer extends Server {
             ChannelFuture channelFuture = new ServerBootstrap()
                     .group(bossGroup, workGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new RpcServiceInitializer(SERVICE_MAP, null))
+                    .childHandler(new RpcServiceInitializer(applicationName, SERVICE_MAP, null))
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .bind(new InetSocketAddress(hostName, port)).sync();
