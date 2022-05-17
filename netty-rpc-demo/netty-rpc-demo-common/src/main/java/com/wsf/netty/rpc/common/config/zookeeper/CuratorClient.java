@@ -18,15 +18,15 @@ import java.util.List;
  * @author wsf
  * @since 20220526
  */
-public class CuratorClientConfig {
+public class CuratorClient {
 
     private final CuratorFramework curatorFrameworkClient;
 
-    public CuratorClientConfig(String connectString, int timeout) {
+    public CuratorClient(String connectString, int timeout) {
         this(Constant.ZK_NAMESPACE, connectString, timeout, timeout);
     }
 
-    public CuratorClientConfig(String connectString) {
+    public CuratorClient(String connectString) {
         this(Constant.ZK_NAMESPACE, connectString, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
     }
 
@@ -34,7 +34,7 @@ public class CuratorClientConfig {
         return curatorFrameworkClient;
     }
 
-    public CuratorClientConfig(String namespace, String connectString, int sessionTimeOutMs, int connectTimeOutMs) {
+    public CuratorClient(String namespace, String connectString, int sessionTimeOutMs, int connectTimeOutMs) {
         curatorFrameworkClient = CuratorFrameworkFactory.builder()
                 .namespace(namespace)
                 .connectString(connectString)

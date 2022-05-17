@@ -19,6 +19,11 @@ public class Constant {
     public static final String ZK_NAMESPACE = "netty-rpc-wsf";
 
     /**
+     * zk服务注册路径
+     */
+    public static final String RPC_REGISTER_PATH = "/registry/";
+
+    /**
      * zk会话超时时间
      */
     public static final int ZK_SESSION_TIMEOUT = 5000;

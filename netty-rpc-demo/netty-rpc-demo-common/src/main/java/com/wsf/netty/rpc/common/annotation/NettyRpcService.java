@@ -14,7 +14,7 @@ public @interface NettyRpcService {
      *
      * @return 接口类型
      */
-    Class<?> clazz();
+    Class<?> value();
 
     /**
      * 版本号

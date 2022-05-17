@@ -1,11 +1,12 @@
 package com.wsf.netty.rpc.provider.server.impl;
 
 import com.wsf.netty.rpc.common.utils.ServiceUtil;
+import com.wsf.netty.rpc.common.utils.ThreadPoolUtil;
 import com.wsf.netty.rpc.provider.server.Server;
 import com.wsf.netty.rpc.provider.server.handler.RpcServiceInitializer;
+import com.wsf.netty.rpc.provider.server.registry.ServiceRegistry;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author wsf
@@ -22,15 +24,18 @@ import java.util.Map;
 public class NettyServer extends Server {
 
     // 127.0.0.1:12345
-    private String address;
+    protected String address;
 
-    private String applicationName;
+    protected String applicationName;
+
+    private ServiceRegistry serviceRegistry;
 
     private final Map<String, Object> SERVICE_MAP = new HashMap<>();
 
-    public NettyServer(String address, String applicationName) {
+    public NettyServer(String applicationName, String address, String zkAddress) {
         this.address = address;
         this.applicationName = applicationName;
+        this.serviceRegistry = new ServiceRegistry(zkAddress);
     }
 
     private final NioEventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -52,6 +57,7 @@ public class NettyServer extends Server {
 
     @Override
     public void start() {
+        ThreadPoolExecutor threadPoolExecutor = ThreadPoolUtil.makeServerThreadPool(NettyServer.class.getSimpleName(), 16, 32);
         String[] split = address.split(":");
         String hostName = split[0];
         int port = Integer.parseInt(split[1]);
@@ -60,14 +66,17 @@ public class NettyServer extends Server {
             ChannelFuture channelFuture = new ServerBootstrap()
                     .group(bossGroup, workGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new RpcServiceInitializer(applicationName, SERVICE_MAP, null))
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    .childHandler(new RpcServiceInitializer(applicationName, SERVICE_MAP, threadPoolExecutor))
+                    // todo 两个option的含义
+                    //.option(ChannelOption.SO_BACKLOG, 128)
+                    //.childOption(ChannelOption.SO_KEEPALIVE, true)
                     .bind(new InetSocketAddress(hostName, port)).sync();
-            // todo 服务注册到zk
+            // 服务注册到zk
+            if (serviceRegistry != null) {
+                serviceRegistry.registryService(hostName, port, SERVICE_MAP);
+            }
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            e.printStackTrace();
             log.error("RpcServer 启动异常", e);
         } finally {
             bossGroup.shutdownGracefully();

@@ -16,25 +16,27 @@ public class RpcServer extends NettyServer implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
-    public RpcServer(String application, String address) {
-        super(application, address);
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+
         Map<String, Object> beansWithAnnotationMap = applicationContext.getBeansWithAnnotation(NettyRpcService.class);
         if (MapUtils.isNotEmpty(beansWithAnnotationMap)) {
             // 注册服务
             for (Object serviceBean : beansWithAnnotationMap.values()) {
                 NettyRpcService annotation = serviceBean.getClass().getAnnotation(NettyRpcService.class);
-                String interfaceName = annotation.clazz().getName();
+                String interfaceName = annotation.value().getName();
                 String version = annotation.version();
-                addService(application, interfaceName, version, serviceBean);
+                addService(applicationName, interfaceName, version, serviceBean);
             }
         }
         // 启动服务器
         start();
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+    public RpcServer(String application, String serverAddress, String registryAddress) {
+        super(application, serverAddress, registryAddress);
+
     }
 
 }
