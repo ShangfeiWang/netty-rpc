@@ -3,6 +3,7 @@ package com.wsf.netty.rpc.provider.server.impl;
 import com.wsf.netty.rpc.common.annotation.NettyRpcService;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -12,7 +13,7 @@ import java.util.Map;
  * @author wsf
  * @since 20220526
  */
-public class RpcServer extends NettyServer implements ApplicationContextAware {
+public class RpcServer extends NettyServer implements ApplicationContextAware, InitializingBean {
 
     private ApplicationContext applicationContext;
 
@@ -30,8 +31,7 @@ public class RpcServer extends NettyServer implements ApplicationContextAware {
                 addService(applicationName, interfaceName, version, serviceBean);
             }
         }
-        // 启动服务器
-        start();
+
     }
 
     public RpcServer(String application, String serverAddress, String registryAddress) {
@@ -39,4 +39,9 @@ public class RpcServer extends NettyServer implements ApplicationContextAware {
 
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // 启动服务器
+        start();
+    }
 }
