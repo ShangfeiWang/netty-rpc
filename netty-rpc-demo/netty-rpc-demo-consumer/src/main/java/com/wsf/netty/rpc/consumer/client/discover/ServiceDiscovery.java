@@ -32,10 +32,10 @@ public class ServiceDiscovery {
     public void discoveryService() {
         // 获取注册服务的节点信息
         try {
-            List<String> nodeList = curatorClient.getChildren(Constant.RPC_REGISTER_PATH);
+            List<String> nodeList = curatorClient.getChildren(Constant.REGISTER_HEAD);
             List<RpcProtocol> serviceDateList = new ArrayList<>();
             for (String node : nodeList) {
-                byte[] nodeData = curatorClient.getNodeData(Constant.RPC_REGISTER_PATH + "/" + node);
+                byte[] nodeData = curatorClient.getNodeData(Constant.REGISTER_HEAD + "/" + node);
                 String json = new String(nodeData, StandardCharsets.UTF_8);
                 RpcProtocol protocol = JSON.parseObject(json, RpcProtocol.class);
                 serviceDateList.add(protocol);
@@ -44,7 +44,7 @@ public class ServiceDiscovery {
             ConnectionManager.getInstance().updateConnectedServer(serviceDateList);
 
             // 添加时间监听
-            curatorClient.watchPathChildrenNode(Constant.RPC_REGISTER_PATH, new PathChildrenCacheListener() {
+            curatorClient.watchPathChildrenNode(Constant.REGISTER_HEAD, new PathChildrenCacheListener() {
                 @Override
                 public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent) throws Exception {
                     PathChildrenCacheEvent.Type type = pathChildrenCacheEvent.getType();
@@ -78,4 +78,7 @@ public class ServiceDiscovery {
         ConnectionManager.getInstance().updateConnectedServer(protocol, type);
     }
 
+    public void stop() {
+        curatorClient.close();
+    }
 }

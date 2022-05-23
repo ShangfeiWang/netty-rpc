@@ -1,4 +1,5 @@
 import com.wsf.netty.rpc.common.config.zookeeper.CuratorClient;
+import com.wsf.netty.rpc.common.constant.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -21,6 +22,15 @@ public class TestCurator {
         curatorClient.createPersistentPathNodeData("/wsf/test2", "hello".getBytes(StandardCharsets.UTF_8));
 
         curatorClient.close();
+    }
+
+    @Test
+    public void testCreateNodeData() throws Exception {
+        CuratorClient curatorClient = new CuratorClient("124.223.109.220:2181");
+
+        // 创建瞬时节点
+        curatorClient.createPersistentPathNodeData(Constant.RPC_REGISTER_PATH + "/wsf", "hello".getBytes(StandardCharsets.UTF_8));
+        System.out.println(111);
     }
 
     @Test

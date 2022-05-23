@@ -15,4 +15,5 @@ public class Beat {
 
     public static final int BEAT_TIMEOUT = 3 * BEAT_INTERVAL;
 
+    public static final String BEAT_PING = "ping";
 }

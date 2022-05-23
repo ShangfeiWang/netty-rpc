@@ -1,4 +1,4 @@
-package com.wsf.netty.rpc.provider.service;
+package com.wsf.netty.rpc.common.service;
 
 /**
  * @author wsf

@@ -5,6 +5,7 @@ import com.wsf.netty.rpc.common.protocol.RpcProtocol;
 import com.wsf.netty.rpc.common.protocol.RpcServiceInfo;
 import com.wsf.netty.rpc.consumer.client.handler.RpcClientHandler;
 import com.wsf.netty.rpc.consumer.client.handler.RpcClientInitializer;
+import com.wsf.netty.rpc.consumer.client.route.RpcLoadBalanceRandom;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -47,11 +48,27 @@ public class ConnectionManager {
 
     private Condition connected = lock.newCondition();
 
+    private volatile boolean isRunning = true;
+
+    private long waitTimeout = 5000;
+
+    private RpcLoadBalanceRandom random = new RpcLoadBalanceRandom();
+
+    private static Object object = new Object();
+
     private ConnectionManager() {
-        connectionManager = new ConnectionManager();
     }
 
     public static ConnectionManager getInstance() {
+        if (connectionManager == null) {
+            synchronized (object) {
+                if (connectionManager == null) {
+                    connectionManager = new ConnectionManager();
+                    return connectionManager;
+                }
+                return connectionManager;
+            }
+        }
         return connectionManager;
     }
 
@@ -145,6 +162,51 @@ public class ConnectionManager {
         lock.lock();
         try {
             connected.signalAll();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void removeHandler(RpcProtocol rpcProtocol) {
+        rpcProtocolSet.remove(rpcProtocol);
+        connectedServerNodes.remove(rpcProtocol);
+        log.info("Remove one connection, host: {}, port: {}", rpcProtocol.getHost(), rpcProtocol.getPort());
+    }
+
+    public void stop() {
+        isRunning = false;
+        for (RpcProtocol protocol : rpcProtocolSet) {
+            removeAndCloseHandler(protocol);
+        }
+        threadPoolExecutor.shutdown();
+        eventLoopGroup.shutdownGracefully();
+    }
+
+    public RpcClientHandler chooseHandler(String serviceKey) throws Exception {
+        int size = connectedServerNodes.values().size();
+        while (isRunning && size <= 0) {
+            try {
+                // 当没有服务要注册的时候就在这里等待
+                waitForHandler();
+                size = connectedServerNodes.values().size();
+            } catch (Exception e) {
+                log.error("Waiting for available service is interrupted!", e);
+            }
+        }
+
+        RpcProtocol route = random.route(serviceKey, connectedServerNodes);
+        RpcClientHandler rpcClientHandler = connectedServerNodes.get(route);
+        if (rpcClientHandler != null) {
+            return rpcClientHandler;
+        }
+        throw new Exception("Can not get available connection");
+    }
+
+    private boolean waitForHandler() throws InterruptedException {
+        lock.lock();
+        try {
+            log.info("waiting for available service");
+            return connected.await(this.waitTimeout, TimeUnit.SECONDS);
         } finally {
             lock.unlock();
         }

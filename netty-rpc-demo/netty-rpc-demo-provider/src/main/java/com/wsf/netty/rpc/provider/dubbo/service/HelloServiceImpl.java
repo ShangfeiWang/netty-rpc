@@ -1,7 +1,7 @@
-package com.wsf.netty.rpc.provider.service.impl;
+package com.wsf.netty.rpc.provider.dubbo.service;
 
 import com.wsf.netty.rpc.common.annotation.NettyRpcService;
-import com.wsf.netty.rpc.provider.service.HelloService;
+import com.wsf.netty.rpc.common.service.HelloService;
 import org.springframework.stereotype.Service;
 
 /**

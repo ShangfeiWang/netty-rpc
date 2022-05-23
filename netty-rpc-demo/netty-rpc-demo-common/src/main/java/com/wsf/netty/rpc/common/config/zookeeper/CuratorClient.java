@@ -62,7 +62,7 @@ public class CuratorClient {
      * @throws Exception 异常信息
      */
     public void createPathNodeData(String path, byte[] bytes) throws Exception {
-        curatorFrameworkClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bytes);
+        curatorFrameworkClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(path, bytes);
     }
 
     /**

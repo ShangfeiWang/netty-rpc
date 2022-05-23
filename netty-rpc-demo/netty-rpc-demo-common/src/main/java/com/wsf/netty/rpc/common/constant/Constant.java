@@ -18,10 +18,12 @@ public class Constant {
      */
     public static final String ZK_NAMESPACE = "netty-rpc-wsf";
 
+    public static final String REGISTER_HEAD = "/registry";
+
     /**
      * zk服务注册路径
      */
-    public static final String RPC_REGISTER_PATH = "/registry/";
+    public static final String RPC_REGISTER_PATH = REGISTER_HEAD + "/data";
 
     /**
      * zk会话超时时间

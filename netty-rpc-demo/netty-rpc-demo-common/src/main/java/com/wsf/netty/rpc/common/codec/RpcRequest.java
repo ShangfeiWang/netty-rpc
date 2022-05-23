@@ -11,6 +11,8 @@ import java.io.Serializable;
 @Data
 public class RpcRequest implements Serializable {
 
+    private static final long serialVersionUID = -2424084431771398086L;
+
     /**
      * 请求id
      */
