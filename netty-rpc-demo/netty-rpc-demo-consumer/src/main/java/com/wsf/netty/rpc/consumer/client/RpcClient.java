@@ -35,6 +35,9 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         this.applicationContext = applicationContext;
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
+            if ("rpcClient".equals(beanDefinitionName)) {
+                continue;
+            }
             Object bean = applicationContext.getBean(beanDefinitionName);
             Field[] declaredFields = bean.getClass().getDeclaredFields();
             try {
@@ -54,7 +57,7 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
     }
 
     private <T> T createService(Class<T> interfaceClass, String version) {
-        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[] { interfaceClass }, new ObjectProxy<>(interfaceClass, version, "consumer"));
+        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[] { interfaceClass }, new ObjectProxy<>(interfaceClass, version, "provider"));
     }
 
     public RpcClient(String address) {

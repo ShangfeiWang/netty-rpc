@@ -32,7 +32,7 @@ public class RpcClientInitializer extends ChannelInitializer<NioSocketChannel> {
         // todo 添加handler
         Serializer jsonSerializer = new JsonSerializer();
         ChannelPipeline pipeline = nioSocketChannel.pipeline();
-        pipeline.addLast(new IdleStateHandler(0, 0, Beat.BEAT_INTERVAL, TimeUnit.SECONDS));
+        pipeline.addLast(new IdleStateHandler(0, Beat.BEAT_INTERVAL, 0, TimeUnit.SECONDS));
         pipeline.addLast(new ChannelDuplexHandler() {
             @Override
             public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -43,6 +43,8 @@ public class RpcClientInitializer extends ChannelInitializer<NioSocketChannel> {
                         ChannelFuture sync = ctx.channel().writeAndFlush(rpcRequest).sync();
                         if (!sync.isSuccess()) {
                             log.error("send ping request error requestId:{}", rpcRequest.getRequestId());
+                        } else {
+                            log.info("send ping request success requestId:{}", rpcRequest.getRequestId());
                         }
                     } catch (InterruptedException e) {
                         log.error("send ping request error message:{}", e.getMessage());

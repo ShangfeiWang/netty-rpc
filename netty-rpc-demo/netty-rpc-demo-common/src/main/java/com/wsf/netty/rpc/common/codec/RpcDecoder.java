@@ -33,7 +33,7 @@ public class RpcDecoder extends ByteToMessageDecoder {
         }
         int length = byteBuf.readInt();
         byte[] data = new byte[length];
-        byteBuf.readBytes(length);
+        byteBuf.readBytes(data);
         Object o = null;
         try {
             o = serializer.deSerialize(data, genericClass);

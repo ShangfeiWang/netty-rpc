@@ -7,13 +7,9 @@ import com.wsf.netty.rpc.common.codec.RpcRequest;
 import com.wsf.netty.rpc.common.codec.RpcResponse;
 import com.wsf.netty.rpc.common.serializer.Serializer;
 import com.wsf.netty.rpc.common.serializer.impl.JsonSerializer;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,18 +40,8 @@ public class RpcServiceInitializer extends ChannelInitializer<NioSocketChannel> 
     protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
         Serializer jsonSerializer = new JsonSerializer();
         // 添加心跳包检查处理器
-        nioSocketChannel.pipeline().addLast(new IdleStateHandler(0, 0, Beat.BEAT_TIMEOUT, TimeUnit.SECONDS));
-        nioSocketChannel.pipeline().addLast(new ChannelDuplexHandler() {
-            @Override
-            public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-                IdleStateEvent event = (IdleStateEvent) evt;
-                if (event.state() == IdleState.READER_IDLE) {
-                    log.info("已经{}秒没有收到client发送过来心跳数据了", Beat.BEAT_TIMEOUT);
-                    // 关闭channel
-                    ctx.channel().close();
-                }
-            }
-        });
+        nioSocketChannel.pipeline().addLast(new IdleStateHandler(Beat.BEAT_TIMEOUT, 0, 0, TimeUnit.SECONDS));
+        nioSocketChannel.pipeline().addLast(new ServerHeatBeatHandler());
         // 添加拆包粘包解码器
         // 参数1：一个数据包最大的长度  参数2：长度字段偏移量  参数3：长度字段占几个字节  参数4：长度的调整值  参数5：需要跳过几个字节数
         nioSocketChannel.pipeline().addLast(new LengthFieldBasedFrameDecoder(65535, 0, 4, 0, 0));
