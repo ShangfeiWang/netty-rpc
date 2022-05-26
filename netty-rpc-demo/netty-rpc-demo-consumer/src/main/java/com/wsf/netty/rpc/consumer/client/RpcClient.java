@@ -4,6 +4,7 @@ import com.wsf.netty.rpc.common.annotation.NettyRpcClient;
 import com.wsf.netty.rpc.consumer.client.connect.ConnectionManager;
 import com.wsf.netty.rpc.consumer.client.discover.ServiceDiscovery;
 import com.wsf.netty.rpc.consumer.client.proxy.ObjectProxy;
+import com.wsf.netty.rpc.consumer.client.proxy.RpcService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -56,8 +57,12 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
         }
     }
 
-    private <T> T createService(Class<T> interfaceClass, String version) {
+    public <T> T createService(Class<T> interfaceClass, String version) {
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[] { interfaceClass }, new ObjectProxy<>(interfaceClass, version, "provider"));
+    }
+
+    public static <T, P> RpcService createAsyncService(Class<T> interfaceClass, String version) {
+        return new ObjectProxy<T, P>(interfaceClass, version, "provider");
     }
 
     public RpcClient(String address) {
@@ -73,6 +78,12 @@ public class RpcClient implements ApplicationContextAware, DisposableBean {
 
     public static void submit(Runnable task) {
         threadPoolExecutor.execute(task);
+    }
+
+    public void stop() {
+        threadPoolExecutor.shutdown();
+        serviceDiscovery.stop();
+        ConnectionManager.getInstance().stop();
     }
 
 }

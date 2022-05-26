@@ -31,8 +31,11 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
     }
 
     @Override
-    public RpcFuture call(String funcName, Object... args) throws Exception {
-        return null;
+    public RpcFuture call(String methodName, Object... args) throws Exception {
+        String serviceKey = ServiceUtil.generateUniqueServiceKey("provider", this.clazz.getName(), version);
+        RpcClientHandler rpcClientHandler = ConnectionManager.getInstance().chooseHandler(serviceKey);
+        RpcRequest request = createRequest(this.clazz.getName(), methodName, args);
+        return rpcClientHandler.sendRpcRequest(request);
     }
 
     @Override
@@ -82,4 +85,21 @@ public class ObjectProxy<T, P> implements InvocationHandler, RpcService<T, P, Se
         // 同步获取结果并返回
         return rpcFuture.get();
     }
+
+    private RpcRequest createRequest(String className, String methodName, Object[] args) {
+        RpcRequest request = new RpcRequest();
+        request.setRequestId(UUID.randomUUID().toString());
+        request.setClassName(className);
+        request.setMethodName(methodName);
+        request.setParameters(args);
+        request.setVersion(version);
+        Class[] parameterTypes = new Class[args.length];
+        // Get the right class type
+        for (int i = 0; i < args.length; i++) {
+            parameterTypes[i] = args[i].getClass();
+        }
+        request.setParameterTypes(parameterTypes);
+        return request;
+    }
+
 }

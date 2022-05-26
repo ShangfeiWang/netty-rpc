@@ -9,7 +9,7 @@ import com.wsf.netty.rpc.consumer.client.handler.RpcFuture;
  */
 public interface RpcService<T, P, FN extends SerializableFunction<T>> {
 
-    RpcFuture call(String funcName, Object... args) throws Exception;
+    RpcFuture call(String methodName, Object... args) throws Exception;
 
     /**
      * lambda method reference

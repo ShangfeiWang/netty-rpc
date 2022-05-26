@@ -14,6 +14,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,7 @@ public class RpcClientInitializer extends ChannelInitializer<NioSocketChannel> {
             }
         });
         pipeline.addLast(new LengthFieldBasedFrameDecoder(65535, 0, 4, 0, 0));
+        pipeline.addLast(new LoggingHandler());
         pipeline.addLast(new RpcEncoder(RpcRequest.class, jsonSerializer));
         pipeline.addLast(new RpcDecoder(RpcResponse.class, jsonSerializer));
         pipeline.addLast(new RpcClientHandler());
