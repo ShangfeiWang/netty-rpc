@@ -19,6 +19,7 @@
         <module>netty-rpc-demo-consumer</module>
         <module>netty-rpc-demo-common</module>
         <module>netty-rpc-demo-test</module>
+        <module>netty-redis-client-demo</module>
     </modules>
 
     <properties>
