@@ -3,6 +3,8 @@ package com.wsf.netty.redis.client.service;
 import com.wsf.netty.redis.client.service.enums.ExpireMode;
 import com.wsf.netty.redis.client.service.enums.XMode;
 
+import java.util.List;
+
 /**
  * @author laihaohua
  */
@@ -55,5 +57,13 @@ public interface RedisClient<T> {
      * @return value
      */
     T get(T key);
+
+    /**
+     * 通配符匹配
+     *
+     * @param key key
+     * @return value
+     */
+    List<T> keysSearch(T key);
 
 }

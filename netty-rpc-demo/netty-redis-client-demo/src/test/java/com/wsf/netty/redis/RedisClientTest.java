@@ -6,6 +6,7 @@ import com.wsf.netty.redis.client.service.enums.XMode;
 import com.wsf.netty.redis.client.service.impl.RedisStringClientImpl;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -17,6 +18,9 @@ public class RedisClientTest {
     @Test
     public void testSet() {
         RedisStringClientImpl impl = new RedisStringClientImpl(ClientTypeEnum.STRING);
+        for (int i = 0; i < 5; i++) {
+            System.out.println(impl.set(i + "zhangsan" + i, "123"));
+        }
         System.out.println(impl.set("zhangsan", "123"));
     }
 
@@ -55,5 +59,12 @@ public class RedisClientTest {
         Thread.sleep(1000);
         System.out.println(impl.set("zhangsan", "123", ExpireMode.EX, 3, XMode.NX));
         System.out.println(impl.set("zhangsan", "123", ExpireMode.EX, 3, XMode.NX));
+    }
+
+    @Test
+    public void testKeysSearch() throws InterruptedException {
+        RedisStringClientImpl impl = new RedisStringClientImpl(ClientTypeEnum.STRING);
+        List<String> keysList = impl.keysSearch("*");
+        System.out.println(keysList);
     }
 }

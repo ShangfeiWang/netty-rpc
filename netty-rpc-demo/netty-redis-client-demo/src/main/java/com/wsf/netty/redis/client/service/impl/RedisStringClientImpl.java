@@ -8,6 +8,7 @@ import com.wsf.netty.redis.client.utils.Constants;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author wsf
@@ -81,4 +82,16 @@ public class RedisStringClientImpl extends AbstractRedisClient<String> {
         }
         return null;
     }
+
+    @Override
+    public List<String> keysSearch(String key) {
+        String cmd = StringUtils.join(Arrays.asList("keys", "*" + key + "*"), Constants.SPACE_CHARACTER);
+        try {
+            return (List<String>) invoke(cmd);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

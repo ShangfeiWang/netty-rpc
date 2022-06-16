@@ -9,6 +9,9 @@ import io.netty.handler.codec.redis.RedisMessage;
 import io.netty.handler.codec.redis.SimpleStringRedisMessage;
 import io.netty.util.CharsetUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author wsf
  * @since 20220623
@@ -26,13 +29,14 @@ public class RedisResponseHandleUtils {
         } else if (msg instanceof FullBulkStringRedisMessage) {
             return getString((FullBulkStringRedisMessage) msg);
         } else if (msg instanceof ArrayRedisMessage) {
+            List<Object> resultList = new ArrayList<>();
             for (RedisMessage child : ((ArrayRedisMessage) msg).children()) {
-                resolveAggregatedRedisResponse(child);
+                resultList.add(resolveAggregatedRedisResponse(child));
             }
+            return resultList;
         } else {
             throw new CodecException("unknown message type: " + msg + "\r\n");
         }
-        return null;
     }
 
     public static String getString(FullBulkStringRedisMessage msg) {
