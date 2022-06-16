@@ -18,7 +18,7 @@ public enum XMode {
     /**
      * key不存在的时候才创建
      */
-    NX("EX");
+    NX("NX");
 
     /**
      * 类型

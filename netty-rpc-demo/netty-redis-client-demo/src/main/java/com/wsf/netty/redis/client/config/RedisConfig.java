@@ -11,8 +11,8 @@ public class RedisConfig {
 
     public static int connectionCount = 10;
 
-    public static int port;
+    public static int port = 6379;
 
-    public static String host;
+    public static String host = "127.0.0.1";
 
 }
